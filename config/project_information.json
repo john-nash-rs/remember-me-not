@@ -1,0 +1,3 @@
+[
+    {"Name": "Superset", "Directory": "/user", "RunInstruction": "Docker compose up"}
+]
