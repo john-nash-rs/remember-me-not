@@ -43,7 +43,7 @@ go run main.go
 
 You should see following UI at http://localhost:1010
 
-<img width="1788" alt="Screenshot 2022-01-27 at 12 16 08 AM" src="https://user-images.githubusercontent.com/33624864/151227035-354b0358-9b3e-4e62-8a8a-7f72d92508ec.png">
+<img width="1774" alt="Screenshot 2022-01-27 at 12 23 01 AM" src="https://user-images.githubusercontent.com/33624864/151227860-d19a4a4a-a708-432e-91d6-18bc6b8f380e.png">
 
 ## Run your project
 
