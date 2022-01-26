@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"text/template"
-
-	"github.com/spf13/viper"
 )
 
 type Project struct {
@@ -16,21 +16,19 @@ type Project struct {
 }
 
 type ProjectList struct {
-	Projects []Project
+	Projects []*Project
 }
 
-func loadConfig() (projectInformation Project, err error) {
-	viper.AddConfigPath("./config")
-	viper.SetConfigName("project_information")
-	viper.SetConfigType("json")
-
-	err = viper.ReadInConfig()
+func loadConfig() ProjectList {
+	var projectInformation ProjectList
+	configFile, err := ioutil.ReadFile("./config/project_information.json")
+	fmt.Println(string(configFile))
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
-
-	err = viper.Unmarshal(&projectInformation)
-	return
+	json.Unmarshal(configFile, &projectInformation)
+	fmt.Println(projectInformation)
+	return projectInformation
 
 }
 
@@ -38,7 +36,7 @@ func home(writer http.ResponseWriter, req *http.Request) {
 
 	tmpl := template.Must(template.ParseFiles("./static/index.html"))
 	data := ProjectList{
-		Projects: []Project{
+		Projects: []*Project{
 			{Name: "Superset", Directory: "/user", RunInstruction: "Docker compose up"},
 		},
 	}
@@ -46,11 +44,8 @@ func home(writer http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	projectInformation, err := loadConfig()
-	fmt.Printf(projectInformation.Name)
-	if err != nil {
-		log.Fatal("cannot load config:", err)
-	}
+	projectInformation := loadConfig()
+	fmt.Println(projectInformation.Projects[0].Name)
 	http.HandleFunc("/home", home)
 	http.ListenAndServe(":1010", nil)
 }
