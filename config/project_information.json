@@ -4,7 +4,16 @@
           "id": "1",
           "Name":"Test Script",
           "Directory":"./scripts/",
-          "RunInstruction":"./test.sh"
+          "RunInstruction":"./test.sh",
+          "StopInstruction": ""
+       },
+       {
+        "id": "2",
+        "Name":"Superset",
+        "Directory":"/Users/harshvardhan/superset/superset",
+        "RunInstruction":"docker-compose -f docker-compose-non-dev.yml up -d",
+        "StopInstruction":"docker-compose -f docker-compose-non-dev.yml down"      
        }
+
     ]
  }

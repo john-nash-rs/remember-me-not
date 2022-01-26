@@ -11,11 +11,13 @@ import (
 )
 
 type Project struct {
-	Id             string
-	Name           string
-	Directory      string
-	RunInstruction string
-	Href           string
+	Id              string
+	Name            string
+	Directory       string
+	RunInstruction  string
+	StopInstruction string
+	HrefRun         string
+	HrefStop        string
 }
 
 type ProjectList struct {
@@ -36,9 +38,15 @@ func home(writer http.ResponseWriter, req *http.Request) {
 	tmpl.Execute(writer, projects)
 }
 
-func run(writer http.ResponseWriter, req *http.Request) {
+func execute(writer http.ResponseWriter, req *http.Request) {
 	id := req.URL.Query().Get("id")
-	scriptFileName := "./scripts/" + id + ".sh"
+	action := req.URL.Query().Get("action")
+	var scriptFileName = ""
+	if action == "run" {
+		scriptFileName = "./scripts/" + id + "_run.sh"
+	} else {
+		scriptFileName = "./scripts/" + id + "_stop.sh"
+	}
 	out, err := exec.Command("/bin/sh", scriptFileName).Output()
 	check(err)
 	writer.Write([]byte(projectMap[id].Name + " has been executed successfully"))
@@ -51,28 +59,32 @@ func main() {
 	projects = loadConfig()
 	generateScripts()
 	http.HandleFunc("/", home)
-	http.HandleFunc("/run", run)
+	http.HandleFunc("/execute", execute)
 	http.ListenAndServe(":1010", nil)
 }
 
-var scriptMap map[string]string
 var projectMap map[string]Project
 
 func generateScripts() {
-	scriptMap = make(map[string]string)
 	projectMap = make(map[string]Project)
 	for index, project := range projects.Projects {
-		project.Href = "http://localhost:1010/run?id=" + project.Id
-		scriptFileName := "./scripts/" + project.Id + ".sh"
-		scriptFile, err := os.Create(scriptFileName)
-		script := []byte("cd " + project.Directory + "\n" + project.RunInstruction)
-		err = ioutil.WriteFile(scriptFileName, []byte(script), 0777)
-		check(err)
-		scriptMap[project.Id] = scriptFile.Name()
+		project.HrefRun = "http://localhost:1010/execute?action=run&id=" + project.Id
+		project.HrefStop = "http://localhost:1010/execute?action=stop&id=" + project.Id
+		scriptFileName := "./scripts/" + project.Id + "_run.sh"
+		generate(scriptFileName, project.RunInstruction, project.Directory)
+		scriptFileName = "./scripts/" + project.Id + "_stop.sh"
+		generate(scriptFileName, project.StopInstruction, project.Directory)
 		projectMap[project.Id] = *project
-		defer scriptFile.Close()
-		fmt.Println(index, project.Directory, scriptMap)
+		fmt.Println(index, project.Directory)
 	}
+}
+
+func generate(scriptFileName string, instruction string, directoryName string) {
+	scriptFile, err := os.Create(scriptFileName)
+	script := []byte("cd " + directoryName + "\n" + instruction)
+	err = ioutil.WriteFile(scriptFileName, []byte(script), 0777)
+	defer scriptFile.Close()
+	check(err)
 }
 
 func check(e error) {

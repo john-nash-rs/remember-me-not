@@ -25,6 +25,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Directory</th>
                 <th scope="col">Run Command</th>
+                <th scope="col">Stop Command</th>
               </tr>
             </thead>
             <tbody>
@@ -34,7 +35,9 @@
                         <td>{{.Name}}</td>
                         <td>{{.Directory}}</td>
                         <td>{{.RunInstruction}}</td>
-                        <td><a href={{.Href}} class="btn btn-info" role="button">Run</a></td>
+                        <td>{{.StopInstruction}}</td>
+                        <td><a href={{.HrefRun}} class="btn btn-info" role="button">Run</a></td>
+                        <td><a href={{.HrefStop}} class="btn btn-info" role="button">Stop</a></td>
                     </tr>
                 {{end}}
             </tbody>
