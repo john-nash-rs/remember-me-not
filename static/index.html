@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>remember-me-not</title>
   </head>
   <body>
     <!-- Optional JavaScript -->
@@ -17,11 +17,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <div class="container-fluid">
-        <h1>Your local organiser</h1>
+        <h1>Remember Me Not - Your local organiser</h1>
         <table class="table">
             <thead>
               <tr>
-                <th scope="col">#</th>
+                <th scope="col">Id</th>
                 <th scope="col">Name</th>
                 <th scope="col">Directory</th>
                 <th scope="col">Run Command</th>
@@ -30,10 +30,11 @@
             <tbody>
                 {{range .Projects}}
                     <tr>
-                        <th scope="row">1</th>
+                        <th scope="row">{{.Id}}</th>
                         <td>{{.Name}}</td>
                         <td>{{.Directory}}</td>
                         <td>{{.RunInstruction}}</td>
+                        <td><a href={{.Href}} class="btn btn-info" role="button">Run</a></td>
                     </tr>
                 {{end}}
             </tbody>

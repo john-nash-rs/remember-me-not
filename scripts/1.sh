@@ -1,0 +1,2 @@
+cd ./scripts/
+./test.sh

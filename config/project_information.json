@@ -1,1 +1,10 @@
-{"Projects" : [{"Name": "Superset", "Directory": "/user", "RunInstruction": "Docker compose up"}]}
+{
+    "Projects":[
+       {
+          "id": "1",
+          "Name":"Test Script",
+          "Directory":"./scripts/",
+          "RunInstruction":"./test.sh"
+       }
+    ]
+ }

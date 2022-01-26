@@ -4,15 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"os"
+	"os/exec"
 	"text/template"
 )
 
 type Project struct {
+	Id             string
 	Name           string
 	Directory      string
 	RunInstruction string
+	Href           string
 }
 
 type ProjectList struct {
@@ -20,32 +23,60 @@ type ProjectList struct {
 }
 
 func loadConfig() ProjectList {
-	var projectInformation ProjectList
+	var projects ProjectList
 	configFile, err := ioutil.ReadFile("./config/project_information.json")
-	fmt.Println(string(configFile))
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal(configFile, &projectInformation)
-	fmt.Println(projectInformation)
-	return projectInformation
+	check(err)
+	json.Unmarshal(configFile, &projects)
+	return projects
 
 }
 
 func home(writer http.ResponseWriter, req *http.Request) {
-
 	tmpl := template.Must(template.ParseFiles("./static/index.html"))
-	data := ProjectList{
-		Projects: []*Project{
-			{Name: "Superset", Directory: "/user", RunInstruction: "Docker compose up"},
-		},
-	}
-	tmpl.Execute(writer, data)
+	tmpl.Execute(writer, projects)
 }
 
+func run(writer http.ResponseWriter, req *http.Request) {
+	id := req.URL.Query().Get("id")
+	scriptFileName := "./scripts/" + id + ".sh"
+	out, err := exec.Command("/bin/sh", scriptFileName).Output()
+	check(err)
+	writer.Write([]byte(projectMap[id].Name + " has been executed successfully"))
+	fmt.Println(string(out))
+}
+
+var projects ProjectList
+
 func main() {
-	projectInformation := loadConfig()
-	fmt.Println(projectInformation.Projects[0].Name)
-	http.HandleFunc("/home", home)
+	projects = loadConfig()
+	generateScripts()
+	http.HandleFunc("/", home)
+	http.HandleFunc("/run", run)
 	http.ListenAndServe(":1010", nil)
+}
+
+var scriptMap map[string]string
+var projectMap map[string]Project
+
+func generateScripts() {
+	scriptMap = make(map[string]string)
+	projectMap = make(map[string]Project)
+	for index, project := range projects.Projects {
+		project.Href = "http://localhost:1010/run?id=" + project.Id
+		scriptFileName := "./scripts/" + project.Id + ".sh"
+		scriptFile, err := os.Create(scriptFileName)
+		script := []byte("cd " + project.Directory + "\n" + project.RunInstruction)
+		err = ioutil.WriteFile(scriptFileName, []byte(script), 0777)
+		check(err)
+		scriptMap[project.Id] = scriptFile.Name()
+		projectMap[project.Id] = *project
+		defer scriptFile.Close()
+		fmt.Println(index, project.Directory, scriptMap)
+	}
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
